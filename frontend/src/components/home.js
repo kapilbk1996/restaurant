@@ -5,6 +5,8 @@ import '../stylesheets/home.css';
 import { Container, Row, Col, Card, Badge, OverlayTrigger, Tooltip, DropdownButton, Button } from 'react-bootstrap';
 import ReactLoading from "react-loading";
 import { FaStar } from 'react-icons/fa';
+import { FaMotorcycle } from 'react-icons/fa';
+import { FaListAlt } from 'react-icons/fa';
 import FilteredMultiSelect from 'react-filtered-multiselect'
 import Dropdown from "react-dropdown-multiselect";
 import Select from 'react-select';
@@ -65,12 +67,23 @@ class Home extends Component {
         }
     }
 
-    handleChange = selectedOption => {
+    handleChange = async(selectedOption) => {
         try{
             this.setState({ selectedOption, loading:true });
-            const response = axios.post('/filterCuisines',{cuisines: selectedOption});
-            this.setState({restaurants:response.data.message, loading:false})
+            if(typeof(selectedOption)=="undefined" || selectedOption==null || selectedOption==''){
+                   
+                this.getRestaurants();
+            }
+                
+            else{
+                const response = await axios.post('/filterCuisines',{cuisines: selectedOption});
+                console.log("handlechange",response);
+                
+                this.setState({restaurants:response.data.message, loading:false})
+            }
         }catch(error){
+            console.log("in error",error.message);
+            
             this.setState({loading:false, error_reason: error.message})        
      }
       };
@@ -107,10 +120,53 @@ class Home extends Component {
                                             <span>{restaurant.Cuisines}</span>
                                         </OverlayTrigger>
                                     </Col>
-                                    <Col >
-                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Currency</Tooltip>}>
-                                            <Badge variant="primary" >{restaurant.Currency}</Badge>
+                                    <Col>
+                                        <Row>
+                                        <Col >
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Currency</Tooltip>}>
+                                                <Badge variant="dark" >{restaurant.Currency}</Badge>
+                                            </OverlayTrigger>
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Avg. Cost for 2</Tooltip>}>
+                                            <Badge variant="primary" >{restaurant["Average Cost for two"]}</Badge>
                                         </OverlayTrigger>
+                                        </Col>
+                                        <Col >
+                                        
+                                    </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col>
+                                        <Row>
+                                            <Col>
+                                            {
+                                                restaurant["Has Online delivery"]==="Yes" &&
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Delivery Available</Tooltip>}>
+                                                    <FaMotorcycle style={{color:"green"}}/>
+                                                </OverlayTrigger>
+                                            }
+                                            {
+                                                restaurant["Has Online delivery"]==="No" &&
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">No Delivery</Tooltip>}>
+                                                    <FaMotorcycle style={{color:"red"}}/>
+                                                </OverlayTrigger>
+                                            }
+                                            </Col>
+                                            <Col>
+                                            {
+                                                restaurant["Has Table booking"]==="Yes" &&
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Booking Available</Tooltip>}>
+                                                    <FaListAlt style={{color:"green"}}/>
+                                                </OverlayTrigger>
+                                            }
+                                            {
+                                                restaurant["Has Table booking"]==="No" &&
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">No Booking</Tooltip>}>
+                                                    <FaListAlt style={{color:"red"}}/>
+                                                </OverlayTrigger>
+                                            }
+                                            </Col>
+                                        </Row>
+
                                     </Col>
                                     <Col>
                                         <Row>
@@ -143,44 +199,18 @@ class Home extends Component {
                                         
                                     </Col>
                                     
+                                    
                                     <Col>
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{restaurant["Rating text"]}</Tooltip>}>
                                         <FaStar style={{color:rating_color}}/>
                                     </OverlayTrigger>
                                     </Col>
                                         </Row>
-                                    </Col>
-                                    {/*
-                                    {
-                                        build_status === 'false'
-                                            ?
-                                            <Col >
-                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Build Result</Tooltip>}>
-                                                    <Badge variant="danger" >Fail</Badge>
-                                                </OverlayTrigger>
-                                            </Col>
-                                            :
-                                            build_status === 'true'
-                                                ?
-                                                <Col >
-                                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Build Result</Tooltip>}>
-                                                        <Badge variant="success" >Pass</Badge>
-                                                    </OverlayTrigger>
-                                                </Col>
-                                                :
-                                                <Col >
-                                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Build Result</Tooltip>}>
-                                                        <Badge variant="warning" >Running</Badge>
-                                                    </OverlayTrigger>
-                                                </Col>
-                                    }
-                                    <Col>
-                                        <DropdownButton alignRight="true" id="dropdown-basic-button" className="float-right" variant="secondary">
-                                                <Dropdown.Item onClick={this.getAllBuildInfo.bind(this, build.timestamp)}>Details</Dropdown.Item>
-                                                <Dropdown.Item onClick={this.deleteBuild.bind(this, build.timestamp)}>Delete</Dropdown.Item>
-                                        </DropdownButton>
 
-                                    </Col> */}
+                                    
+                                    </Col>
+                                    
+                                   
                                 </Row>
                             </Card.Body>
                         </Card>
